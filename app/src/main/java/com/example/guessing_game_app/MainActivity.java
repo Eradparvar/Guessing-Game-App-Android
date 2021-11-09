@@ -4,33 +4,47 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.navigation.ui.AppBarConfiguration;
 
-import com.example.guessing_game_app.databinding.ActivityMainBinding;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private AppBarConfiguration appBarConfiguration;
-    private ActivityMainBinding binding;
+    private GuessingGame mGame;
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("GAME", mGame.getJSONStringFromThis());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setupToolbar();
+        setupFAB();
+        mGame = savedInstanceState != null
+                ? GuessingGame.getGuessingGameObjectFromJSONString(
+                savedInstanceState.getString("GAME"))
+                : new GuessingGame();
+    }
+
+    private void setupToolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(toolbar, "Hello, world!", Snackbar.LENGTH_SHORT).show();
-            }
-        });
+    }
+
+    private void setupFAB() {
+        ExtendedFloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> mGame.startNewGame());
     }
 
     @Override
@@ -55,5 +69,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public void pick123(View view) {
+        Button currentButton = (Button) view;
+        String currentButtonText = currentButton.getText().toString();
+        String resultsText = currentButtonText.equals(String.valueOf(mGame.getWinningNumber()))
+                ? String.format(Locale.US, "Yes! %s is the right number.", currentButtonText)
+                : String.format(Locale.US, "Sorry. %s is not the right number.", currentButtonText);
 
+        Snackbar.make(view, resultsText, Snackbar.LENGTH_SHORT).show();
+    }
 }
