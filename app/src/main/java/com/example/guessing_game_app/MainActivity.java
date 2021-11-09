@@ -78,4 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
         Snackbar.make(view, resultsText, Snackbar.LENGTH_SHORT).show();
     }
+
+    public void startNewGame(View view) {
+        mGame.startNewGame();
+    }
 }
